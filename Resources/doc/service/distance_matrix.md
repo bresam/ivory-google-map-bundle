@@ -9,9 +9,9 @@ single origin and destination to the [Direction API](/Resources/doc/service/dire
 
 ## Dependencies
 
-The Distance Matrix API requires an http client and a serializer. The library relies respectively on 
-[Httplug](http://httplug.io/) which is an http client abstraction library and the 
-[Ivory Serializer](https://github.com/egeloen/ivory-serializer) which is an advanced (de)-serialization library.
+The Distance Matrix API requires an [PSR-18](https://www.php-fig.org/psr/psr-18/) http client and a serializer. Any PSR-18
+http client library is suitable, [HttpClient](https://github.com/symfony/http-client) is a popular and steady choice nowadays.
+And the [Ivory Serializer](https://github.com/egeloen/ivory-serializer) which is an advanced (de)-serialization library.
 
 To install them, read this [documentation](/Resources/doc/installation.md).
 
@@ -24,25 +24,13 @@ By default, the distance matrix service is disabled. In order to enable the serv
 The http client and message factory are mandatory. They define which http client and message factory the distance 
 matrix service will use for issuing http requests.
  
-First, configure the [Httplug](http://httplug.io/) bundle.
-
-``` yaml
-httplug:
-    classes:
-        client: Http\Adapter\Guzzle7\Client
-        message_factory: Http\Message\MessageFactory\GuzzleMessageFactory
-    clients:
-        acme:
-            factory: httplug.factory.guzzle7
-```
-
-Then, configure the Google Map bundle:
+Configure the Google Map bundle:
 
 ``` yaml
 ivory_google_map:
     distance_matrix:
-        client: httplug.client.default
-        message_factory: httplug.message_factory.default
+        client: psr18.http_client
+        request_factory: nyholm.psr7.psr17_factory
 ```
 
 ### Format

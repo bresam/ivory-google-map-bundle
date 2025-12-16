@@ -6,9 +6,9 @@ proximity or a text string. A Place Search returns a list of places along with s
 
 ## Dependencies
 
-The Place Autocomplete API requires an http client and a serializer. The library relies respectively on 
-[Httplug](http://httplug.io/) which is an http client abstraction library and the 
-[Ivory Serializer](https://github.com/egeloen/ivory-serializer) which is an advanced (de)-serialization library. 
+The Place Search API requires an [PSR-18](https://www.php-fig.org/psr/psr-18/) http client and a serializer. Any PSR-18
+http client library is suitable, [HttpClient](https://github.com/symfony/http-client) is a popular and steady choice nowadays.
+And the [Ivory Serializer](https://github.com/egeloen/ivory-serializer) which is an advanced (de)-serialization library.
 
 To install them, read this [documentation](/Resources/doc/installation.md).
 
@@ -19,27 +19,15 @@ By default, the place search service is disabled. In order to enable the service
 ### Http client and message factory
 
 The http client and message factory are mandatory. They define which http client and message factory the place 
-search service will use for issuing http requests.
+search service will use for issuing http requests. Here we use `symfony/http-client` and `nyholm/psr7`.
  
-First, configure the [Httplug](http://httplug.io/) bundle.
-
-``` yaml
-httplug:
-    classes:
-        client: Http\Adapter\Guzzle7\Client
-        message_factory: Http\Message\MessageFactory\GuzzleMessageFactory
-    clients:
-        acme:
-            factory: httplug.factory.guzzle7
-```
-
-Then, configure the Google Map bundle:
+Configure the Google Map bundle:
 
 ``` yaml
 ivory_google_map:
     place_search:
-        client: httplug.client.default
-        message_factory: httplug.message_factory.default
+        client: psr18.http_client
+        request_factory: nyholm.psr7.psr17_factory
 ```
 
 ### Format

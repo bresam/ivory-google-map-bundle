@@ -26,21 +26,19 @@ $ composer require ivory/google-map-bundle
 If you want to use the [Direction](/Resources/doc/service/direction.md), 
 [Distance Matrix](/Resources/doc/service/distance_matrix.md), [Elevation](/Resources/doc/service/elevation.md), 
 [Geocoder](/Resources/doc/service/geocoder.md), [Place](/Resources/doc/service/place/index.md) or 
-[Time Zone](/Resources/doc/service/time_zone.md) services, you will need an http client and message factory via 
-[Httplug](https://httplug.io/) which is an http client abstraction library as well as the 
-[Ivory Serializer](https://github.com/egeloen/ivory-serializer) which is an advanced (de)-serialization library. 
+[Time Zone](/Resources/doc/service/time_zone.md) services, you will need an [PSR-18](https://www.php-fig.org/psr/psr-18/) 
+http client and [PSR-17](https://www.php-fig.org/psr/psr-17/) request factory as well as the
+[Ivory Serializer](https://github.com/egeloen/ivory-serializer) which is an advanced (de)-serialization library.
 
-[Httplug](https://httplug.io/) and [Ivory Serializer](https://github.com/egeloen/ivory-serializer) provide bundles, so 
-let's install them to ease our life:
+The simplest implementation of PSR compatible libraries is using Symfony's [HttpClient](https://github.com/symfony/http-client)
+and a lightweight [PSR-7 library](https://github.com/Nyholm/psr7) by [Tobias Nyholm](https://github.com/Nyholm).
+Next to that use the [Ivory Serializer](https://github.com/egeloen/ivory-serializer) bundle, so let's install them to ease our life:
 
 ``` bash
 $ composer require egeloen/serializer-bundle
-$ composer require php-http/guzzle7-adapter
-$ composer require php-http/httplug-bundle
+$ composer require symfony/http-client
+$ composer require nyholm/psr7
 ```
-
-Here, I have chosen to use [Guzzle7](https://docs.guzzlephp.org/en/latest/psr7.html) but since Httplug supports the 
-most popular http clients, you can install your preferred one instead.
 
 ## Register the bundle
 
@@ -57,7 +55,14 @@ public function registerBundles()
         
         // Optionally
         new Ivory\SerializerBundle\IvorySerializerBundle(),
-        new Http\HttplugBundle\HttplugBundle(),
     ];
 }
 ```
+
+When using the [FrameworkBundle](https://github.com/symfony/framework-bundle) you will have a PSR-18 client service available 
+under `psr18.http_client`. Otherwise you would need to create a service definition for the 
+`Symfony\Component\HttpClient\Psr18Client` class and use that in the following Google service definitions in this bundle.
+
+The request factory implementation will be available as `nyholm.psr7.psr17_factory` when you use Symfony Flex in your 
+project. If not you must add a service definition for `Nyholm\Psr7\Factory\Psr17Factory` to be able to complete the 
+configuration.

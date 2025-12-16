@@ -7,5 +7,5 @@
 
 ivory_google_map:
     direction:
-        client: httplug.client
-        message_factory: httplug.message_factory
+        client: http_client
+        request_factory: http_request_factory

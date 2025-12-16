@@ -11,8 +11,6 @@
 
 namespace Ivory\GoogleMapBundle\Tests\DependencyInjection;
 
-use Http\Client\HttpClient;
-use Http\Message\MessageFactory;
 use Ivory\GoogleMap\Helper\ApiHelper;
 use Ivory\GoogleMap\Helper\MapHelper;
 use Ivory\GoogleMap\Helper\PlaceAutocompleteHelper;
@@ -30,6 +28,8 @@ use Ivory\GoogleMapBundle\DependencyInjection\IvoryGoogleMapExtension;
 use Ivory\GoogleMapBundle\IvoryGoogleMapBundle;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestFactoryInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -55,14 +55,14 @@ abstract class AbstractIvoryGoogleMapExtensionTest extends TestCase
     private $locale;
 
     /**
-     * @var HttpClient|MockObject
+     * @var ClientInterface|MockObject
      */
     private $client;
 
     /**
-     * @var MessageFactory|MockObject
+     * @var RequestFactoryInterface|MockObject
      */
-    private $messageFactory;
+    private $requestFactory;
 
     /**
      * {@inheritdoc}
@@ -74,8 +74,8 @@ abstract class AbstractIvoryGoogleMapExtensionTest extends TestCase
         $this->container->setParameter('kernel.project_dir', realpath(__DIR__.'/../..'));
         $this->container->setParameter('kernel.debug', $this->debug = false);
         $this->container->setParameter('locale', $this->locale = 'en');
-        $this->container->set('httplug.client', $this->client = $this->createClientMock());
-        $this->container->set('httplug.message_factory', $this->messageFactory = $this->createMessageFactoryMock());
+        $this->container->set('http_client', $this->client = $this->createClientMock());
+        $this->container->set('http_request_factory', $this->requestFactory = $this->creatRequestFactoryMock());
         $this->container->registerExtension($extension = new IvoryGoogleMapExtension());
         $this->container->loadFromExtension($extension->getAlias());
         (new IvoryGoogleMapBundle())->build($this->container);
@@ -253,7 +253,7 @@ abstract class AbstractIvoryGoogleMapExtensionTest extends TestCase
 
         $this->assertInstanceOf(DirectionService::class, $direction);
         $this->assertSame($this->client, $direction->getClient());
-        $this->assertSame($this->messageFactory, $direction->getMessageFactory());
+        $this->assertSame($this->requestFactory, $direction->getRequestFactory());
         $this->assertFalse($direction->hasBusinessAccount());
 
         # TODO Check
@@ -317,7 +317,7 @@ abstract class AbstractIvoryGoogleMapExtensionTest extends TestCase
 
         $this->assertInstanceOf(DistanceMatrixService::class, $distanceMatrix);
         $this->assertSame($this->client, $distanceMatrix->getClient());
-        $this->assertSame($this->messageFactory, $distanceMatrix->getMessageFactory());
+        $this->assertSame($this->requestFactory, $distanceMatrix->getRequestFactory());
         $this->assertFalse($distanceMatrix->hasBusinessAccount());
     }
 
@@ -378,7 +378,7 @@ abstract class AbstractIvoryGoogleMapExtensionTest extends TestCase
 
         $this->assertInstanceOf(ElevationService::class, $elevation);
         $this->assertSame($this->client, $elevation->getClient());
-        $this->assertSame($this->messageFactory, $elevation->getMessageFactory());
+        $this->assertSame($this->requestFactory, $elevation->getRequestFactory());
         $this->assertFalse($elevation->hasBusinessAccount());
     }
 
@@ -439,7 +439,7 @@ abstract class AbstractIvoryGoogleMapExtensionTest extends TestCase
 
         $this->assertInstanceOf(GeocoderService::class, $geocoder);
         $this->assertSame($this->client, $geocoder->getClient());
-        $this->assertSame($this->messageFactory, $geocoder->getMessageFactory());
+        $this->assertSame($this->requestFactory, $geocoder->getRequestFactory());
         $this->assertFalse($geocoder->hasBusinessAccount());
     }
 
@@ -500,7 +500,7 @@ abstract class AbstractIvoryGoogleMapExtensionTest extends TestCase
 
         $this->assertInstanceOf(PlaceAutocompleteService::class, $placeAutocomplete);
         $this->assertSame($this->client, $placeAutocomplete->getClient());
-        $this->assertSame($this->messageFactory, $placeAutocomplete->getMessageFactory());
+        $this->assertSame($this->requestFactory, $placeAutocomplete->getRequestFactory());
         $this->assertFalse($placeAutocomplete->hasBusinessAccount());
     }
 
@@ -561,7 +561,7 @@ abstract class AbstractIvoryGoogleMapExtensionTest extends TestCase
 
         $this->assertInstanceOf(PlaceDetailService::class, $placeDetail);
         $this->assertSame($this->client, $placeDetail->getClient());
-        $this->assertSame($this->messageFactory, $placeDetail->getMessageFactory());
+        $this->assertSame($this->requestFactory, $placeDetail->getRequestFactory());
         $this->assertFalse($placeDetail->hasBusinessAccount());
     }
 
@@ -675,7 +675,7 @@ abstract class AbstractIvoryGoogleMapExtensionTest extends TestCase
 
         $this->assertInstanceOf(PlaceSearchService::class, $placeSearch);
         $this->assertSame($this->client, $placeSearch->getClient());
-        $this->assertSame($this->messageFactory, $placeSearch->getMessageFactory());
+        $this->assertSame($this->requestFactory, $placeSearch->getRequestFactory());
         $this->assertFalse($placeSearch->hasBusinessAccount());
     }
 
@@ -736,7 +736,7 @@ abstract class AbstractIvoryGoogleMapExtensionTest extends TestCase
 
         $this->assertInstanceOf(TimeZoneService::class, $timeZone);
         $this->assertSame($this->client, $timeZone->getClient());
-        $this->assertSame($this->messageFactory, $timeZone->getMessageFactory());
+        $this->assertSame($this->requestFactory, $timeZone->getRequestFactory());
         $this->assertFalse($timeZone->hasBusinessAccount());
     }
 
@@ -796,26 +796,17 @@ abstract class AbstractIvoryGoogleMapExtensionTest extends TestCase
         $this->container->compile();
     }
 
-    /**
-     * @return MockObject|HttpClient
-     */
-    private function createClientMock()
+    private function createClientMock(): MockObject|ClientInterface
     {
-        return $this->createMock(HttpClient::class);
+        return $this->createMock(ClientInterface::class);
     }
 
-    /**
-     * @return MockObject|MessageFactory
-     */
-    private function createMessageFactoryMock()
+    private function creatRequestFactoryMock(): RequestFactoryInterface|MockObject
     {
-        return $this->createMock(MessageFactory::class);
+        return $this->createMock(RequestFactoryInterface::class);
     }
 
-    /**
-     * @return MockObject|SerializerInterface
-     */
-    private function createSerializerMock()
+    private function createSerializerMock(): SerializerInterface|MockObject
     {
         return $this->createMock(SerializerInterface::class);
     }

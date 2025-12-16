@@ -86,7 +86,7 @@ class Configuration implements ConfigurationInterface
                 ->isRequired()
                 ->cannotBeEmpty()
                 ->end()
-                ->scalarNode('message_factory')
+                ->scalarNode('request_factory')
                 ->isRequired()
                 ->cannotBeEmpty()
                 ->end()

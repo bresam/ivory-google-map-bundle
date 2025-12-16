@@ -11,6 +11,7 @@
     </testsuites>
 
     <php>
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak" />
         <server name="BROWSER_NAME" value="chrome" />
         <server name="SELENIUM_HOST" value="selenium-chrome" />
         <server name="CACHE_PATH" value="Tests/.cache" />

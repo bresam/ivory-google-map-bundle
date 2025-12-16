@@ -7,8 +7,8 @@
 
 ivory_google_map:
     place_detail:
-        client: httplug.client
-        message_factory: httplug.message_factory
+        client: http_client
+        request_factory: http_request_factory
         business_account:
             client_id: my-client
             secret: my-secret

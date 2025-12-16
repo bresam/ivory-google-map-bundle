@@ -17,7 +17,7 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\ConfigurableExtension;
 
@@ -31,7 +31,7 @@ class IvoryGoogleMapExtension extends ConfigurableExtension
      */
     protected function loadInternal(array $mergedConfig, ContainerBuilder $container): void
     {
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+        $loader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 
         $resources = [
             'form',
@@ -44,7 +44,7 @@ class IvoryGoogleMapExtension extends ConfigurableExtension
         ];
 
         foreach ($resources as $resource) {
-            $loader->load($resource . '.xml');
+            $loader->load($resource . '.php');
         }
 
         $this->loadMapConfig($mergedConfig['map'], $container);
@@ -135,13 +135,13 @@ class IvoryGoogleMapExtension extends ConfigurableExtension
                          $http = true
     ): void
     {
-        $loader->load('service/' . $service . '.xml');
+        $loader->load('service/' . $service . '.php');
         $definition = $container->getDefinition($serviceName = 'ivory.google_map.' . $service);
 
         if ($http) {
             $definition
                 ->addArgument(new Reference($config['client']))
-                ->addArgument(new Reference($config['message_factory']));
+                ->addArgument(new Reference($config['request_factory']));
         }
 
         if ($http && isset($config['format'])) {

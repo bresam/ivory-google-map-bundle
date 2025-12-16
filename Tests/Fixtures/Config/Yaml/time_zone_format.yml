@@ -7,6 +7,6 @@
 
 ivory_google_map:
     time_zone:
-        client: httplug.client
-        message_factory: httplug.message_factory
+        client: http_client
+        request_factory: http_request_factory
         format: xml
